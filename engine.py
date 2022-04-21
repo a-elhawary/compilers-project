@@ -103,7 +103,7 @@ def engine(expression):
                 currentToken += character
                 tempCurrentState = 4
             elif character != " ":
-                addToken(character, "Operator", currentStatel, 5, isValid)
+                addToken(character, "Operator", currentState, 5, isValid)
                 currentState = 5
                 isValid = False
         elif currentState == 7:
