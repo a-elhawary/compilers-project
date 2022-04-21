@@ -7,10 +7,10 @@ def isNumber(character):
 def isOperator(character):
     return character == "+" or character == "-" or character == "*" or character == "/"
 
-def tokenizer(character, currToken):
+def tokenizer(character, currToken, currentState, isValid):
     newState = 0
     if isOperator(character):
-        addToken(character, "Operator")
+        addToken(character, "Operator",currentState, 5, isValid)
         newState = 5
     elif isAlphabet(character):
         currToken += character
@@ -51,14 +51,14 @@ def engine(expression):
                 currentToken += character
                 tempCurrentState = 4
             elif character != " ":
-                tempCurrentState, currentToken = tokenizer(character, currentToken)
+                tempCurrentState, currentToken = tokenizer(character, currentToken, currentState, isValid)
                 isValid = False
         elif currentState == 2:
             if isNumber(character):
                 currentToken += character
                 tempCurrentState = 3
             elif character != " ":
-                tempCurrentState, currentToken = tokenizer(character, currentToken)
+                tempCurrentState, currentToken = tokenizer(character, currentToken, currentState, isValid)
                 isValid = False
         elif currentState == 3:
             if isOperator(character):
@@ -74,7 +74,7 @@ def engine(expression):
                 currentToken = ""
                 tempCurrentState = 7
             else:
-                tempCurrentState, currentToken = tokenizer(character, currentToken)
+                tempCurrentState, currentToken = tokenizer(character, currentToken, currentState, isValid)
                 isValid = False
         elif currentState == 4:
             if isOperator(character):
@@ -90,7 +90,7 @@ def engine(expression):
                 currentToken = ""
                 tempCurrentState = 7
             else:
-                tempCurrentState, currentToken = tokenizer(character, currentToken)
+                tempCurrentState, currentToken = tokenizer(character, currentToken, currentState, isValid)
                 isValid = False
         elif currentState == 5:
             if isNumber(character):
@@ -111,7 +111,7 @@ def engine(expression):
                 addToken(character, "Operator", currentState, 5, isValid)
                 tempCurrentState = 5
             elif character != " ":
-                tempCurrentState, currentToken = tokenizer(character, currentToken)
+                tempCurrentState, currentToken = tokenizer(character, currentToken, currentState, isValid)
                 isValid = False
         previousState = currentState
         currentState = tempCurrentState
@@ -121,7 +121,7 @@ def engine(expression):
     elif currentState == 4:
         addToken(currentToken, "ID", currentState, currentState, isValid)
 
-    return isValid and (currentState == 4 or currentState == 3), tokens
+    return isValid and (currentState == 4 or currentState == 3 or currentState == 7), tokens
 
 def main():
     expression = input("enter ay haga: ")
