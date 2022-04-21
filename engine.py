@@ -78,7 +78,8 @@ def engine(expression):
                 isValid = False
         elif currentState == 4:
             if isOperator(character):
-                addToken(currentToken, "ID", currentState, 5, isValid)
+                if not isNumber(currentToken[0]):
+                    addToken(currentToken, "ID", currentState, 5, isValid)
                 addToken(character, "Operator", currentState, 5, isValid)
                 currentToken = ""
                 tempCurrentState = 5
@@ -86,7 +87,8 @@ def engine(expression):
                 currentToken += character
                 tempCurrentState = 4
             elif character == " ":
-                addToken(currentToken, "ID", currentState, 7, isValid)
+                if not isNumber(currentToken[0]):
+                    addToken(currentToken, "ID", currentState, 5, isValid)
                 currentToken = ""
                 tempCurrentState = 7
             else:
@@ -119,7 +121,8 @@ def engine(expression):
     if(currentState == 3):
         addToken(currentToken, "Number", currentState, currentState, isValid)
     elif currentState == 4:
-        addToken(currentToken, "ID", currentState, currentState, isValid)
+        if not isNumber(currentToken[0]):
+            addToken(currentToken, "ID", currentState, currentState, isValid)
 
     return isValid and (currentState == 4 or currentState == 3 or currentState == 7), tokens
 
