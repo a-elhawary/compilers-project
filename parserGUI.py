@@ -55,21 +55,19 @@ def drawSyntaxTree(tree, g):
     # from left to right with ther depth
     visited = []
     while len(currentNodes) != 1:
-        print(currentNodes)
         deepestNode = None
         maxDepth = 0
         i = 0
         deepestI = 0
         for (node, depth) in currentNodes:
-            print(node)
-            print(isOperator(node))
-            if depth > maxDepth and isOperator(node) and node not in visited:
+            if depth > maxDepth and isOperator(node) and (node, depth) not in visited:
                 deepestNode = node
                 maxDepth = depth
                 deepestI = i
             i += 1
-        print(deepestNode)
         # found deepest operator
+        print(currentNodes)
+        print(deepestNode)
         childOne = currentNodes[deepestI - 1]
         childTwo = currentNodes[deepestI + 1]
         g.add_node(deepestNode)
@@ -77,7 +75,7 @@ def drawSyntaxTree(tree, g):
         g.add_node(childTwo[0])
         g.add_edge(deepestNode, childOne[0])
         g.add_edge(deepestNode, childTwo[0])
-        visited.append(deepestNode)
+        visited.append((deepestNode, maxDepth))
         currentNodes.remove(childOne)
         currentNodes.remove(childTwo)
         print()
