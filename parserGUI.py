@@ -53,6 +53,12 @@ def drawSyntaxTree(tree, g):
             tempNodes.append((node, tempDepth+1))
     # current nodes now contain non-epsilon leaves
     # from left to right with ther depth
+    labeledNodes = []
+    i = 0
+    for (node, depth) in currentNodes:
+        labeledNodes.append((str(i) + ". " + node, depth))
+        i += 1
+    currentNodes = labeledNodes
     visited = []
     while len(currentNodes) != 1:
         deepestNode = None
@@ -60,14 +66,12 @@ def drawSyntaxTree(tree, g):
         i = 0
         deepestI = 0
         for (node, depth) in currentNodes:
-            if depth > maxDepth and isOperator(node) and (node, depth) not in visited:
+            if depth > maxDepth and isOperator(node.split(". ")[1]) and (node, depth) not in visited:
                 deepestNode = node
                 maxDepth = depth
                 deepestI = i
             i += 1
         # found deepest operator
-        print(currentNodes)
-        print(deepestNode)
         childOne = currentNodes[deepestI - 1]
         childTwo = currentNodes[deepestI + 1]
         g.add_node(deepestNode)
@@ -78,7 +82,6 @@ def drawSyntaxTree(tree, g):
         visited.append((deepestNode, maxDepth))
         currentNodes.remove(childOne)
         currentNodes.remove(childTwo)
-        print()
 
 class TopBar(QWidget):
     def __init__(self, parent=None):
