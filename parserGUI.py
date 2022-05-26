@@ -35,17 +35,17 @@ def drawSyntaxTree(tree, g):
     syntaxTreeRoot = None
     currentTreeNode = syntaxTreeRoot
     currentChildrenCount = 0
+    nodeCount = 0
     while len(currentNodes) > 0:
         currentNode = None
         i = 0
         choosenI = 0
         currentDepth = currentNodes[0][1]
         for (node, depth) in currentNodes:
-            print("checking " + str(node.label) + " " + str(node.token) + " " + str(depth) + " " + str(currentDepth))
-            if currentDepth == depth and isOperator(node.token) and currentChildrenCount == 1:
+            if currentDepth == depth and isOperator(node.token) and (currentChildrenCount == 1 or syntaxTreeRoot is None):
                 currentNode = node
                 choosenI = i
-            if currentDepth == depth and not isOperator(node.token) and currentChildrenCount == 0:
+            elif currentDepth == depth and not isOperator(node.token) and currentChildrenCount == 0:
                 currentNode = node
                 choosenI = i
             i += 1
@@ -55,19 +55,18 @@ def drawSyntaxTree(tree, g):
                 continue
         else:
             currentNodes.pop(choosenI)
-        print("choosing " + str(currentNode.label) + " " + str(currentNode.token))
-        print()
         if len(currentNode.nxt) == 0 and currentNode.token is not None and currentNode.token != "(" and currentNode.token != ")":
-            g.add_node(currentNode.token)
+            g.add_node(str(nodeCount) + ". " + currentNode.token)
             if syntaxTreeRoot == None:
-                syntaxTreeRoot = currentNode.token
+                syntaxTreeRoot = str(nodeCount) + ". " + currentNode.token
                 currentTreeNode = syntaxTreeRoot
             else:
-                g.add_edge(currentTreeNode, currentNode.token)
+                g.add_edge(currentTreeNode, str(nodeCount) + ". " + currentNode.token)
                 currentChildrenCount+=1
                 if isOperator(currentNode.token):
-                    currentTreeNode = currentNode.token
+                    currentTreeNode = str(nodeCount) + ". " + currentNode.token
                     currentChildrenCount = 0
+            nodeCount += 1
 
 def main():
     expression = input("Please enter an expression: ")
@@ -78,7 +77,7 @@ def main():
     drawParseTree(tree, G)
     drawSyntaxTree(tree, G)
     pos = graphviz_layout(G, prog="dot")
-    nx.draw_networkx_nodes(G, pos, node_size=1500)
+    nx.draw_networkx_nodes(G, pos, node_size=0)
     nx.draw_networkx_edges(G, pos, G.edges(), edge_color="black")
     nx.draw_networkx_labels(G, pos)
     plt.show()
