@@ -37,11 +37,12 @@ def parser(expression):
     stack.append(Node("$"))
     tree = Node("Exp")
     stack.append(tree)
+    actions = []
     while len(stack) > 0 and len(expression) > 0:
         currentStackNode = stack.pop(-1) 
         currentStackHead = currentStackNode.label
         if currentStackHead == expression[0][0] or currentStackHead == expression[0][1]:
-            print("matched " + str(currentStackHead))
+            actions.append("matched " + str(currentStackHead))
             currentStackNode.token = expression[0][0]
             expression.pop(0)
         elif (currentStackHead, expression[0][0]) in parseTable:
@@ -54,7 +55,7 @@ def parser(expression):
                 currentStackNode.addChildren(nodeNxt)
                 for i in reversed(range(len(nodeNxt))):
                     stack.append(nodeNxt[i])
-            print("action taken: " + currentStackHead + "->" + str(nxt))
+            actions.append("action taken: " + currentStackHead + "->" + str(nxt))
         elif (currentStackHead, expression[0][1]) in parseTable:
             nxt = parseTable[(currentStackHead, expression[0][1])]
             if nxt != "":
@@ -65,10 +66,10 @@ def parser(expression):
                 currentStackNode.addChildren(nodeNxt)
                 for i in reversed(range(len(nodeNxt))):
                     stack.append(nodeNxt[i])
-            print("action taken: " + currentStackHead + "->" + str(nxt))
+            actions.append("action taken: " + currentStackHead + "->" + str(nxt))
         else:
             break
-    return tree
+    return tree, actions
 
 def main():
     expression = input("Please enter an expression: ")
