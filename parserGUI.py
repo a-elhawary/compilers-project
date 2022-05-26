@@ -35,48 +35,52 @@ def drawParseTree(tree, G):
 
 def drawSyntaxTree(tree, g):
     tempNodes = [(tree, 0)]
-    currentNodes = [(tree, 0)]
+    currentNodes = []
     while len(tempNodes) > 0:
-       tempNode, tempDepth = tempNodes.pop(0)
-       for node in tempNode.nxt:
-           currentNodes.append((node, tempDepth+1))
-           tempNodes.append((node, tempDepth+1))
-    currentIndex = 0
-    syntaxTreeRoot = None
-    currentTreeNode = syntaxTreeRoot
-    currentChildrenCount = 0
-    nodeCount = 0
-    while len(currentNodes) > 0:
-        currentNode = None
-        i = 0
+        tempNode, tempDepth = tempNodes[0]
         choosenI = 0
-        currentDepth = currentNodes[0][1]
-        for (node, depth) in currentNodes:
-            if currentDepth == depth and isOperator(node.token) and (currentChildrenCount == 1 or syntaxTreeRoot is None):
-                currentNode = node
-                choosenI = i
-            elif currentDepth == depth and not isOperator(node.token) and currentChildrenCount == 0:
-                currentNode = node
+        i = 0
+        for (node, depth) in tempNodes:
+            if tempDepth < depth:
+                tempDepth = depth
+                tempNode = node
                 choosenI = i
             i += 1
-        if currentNode is None:
-            currentNode, currentDepth = currentNodes.pop(0)
-            if currentNode.label != "Number" and currentNode.label != "ID" and not isOperator(currentNode.token):
-                continue
-        else:
-            currentNodes.pop(choosenI)
-        if len(currentNode.nxt) == 0 and currentNode.token is not None and currentNode.token != "(" and currentNode.token != ")":
-            g.add_node(str(nodeCount) + ". " + currentNode.token)
-            if syntaxTreeRoot == None:
-                syntaxTreeRoot = str(nodeCount) + ". " + currentNode.token
-                currentTreeNode = syntaxTreeRoot
-            else:
-                g.add_edge(currentTreeNode, str(nodeCount) + ". " + currentNode.token)
-                currentChildrenCount+=1
-                if isOperator(currentNode.token):
-                    currentTreeNode = str(nodeCount) + ". " + currentNode.token
-                    currentChildrenCount = 0
-            nodeCount += 1
+        tempNodes.pop(choosenI)
+        for node in tempNode.nxt:
+            if node.token is not None and node.token != "(" and node.token != ")":
+                currentNodes.append((node.token, tempDepth+1))
+            tempNodes.append((node, tempDepth+1))
+    # current nodes now contain non-epsilon leaves
+    # from left to right with ther depth
+    visited = []
+    while len(currentNodes) != 1:
+        print(currentNodes)
+        deepestNode = None
+        maxDepth = 0
+        i = 0
+        deepestI = 0
+        for (node, depth) in currentNodes:
+            print(node)
+            print(isOperator(node))
+            if depth > maxDepth and isOperator(node) and node not in visited:
+                deepestNode = node
+                maxDepth = depth
+                deepestI = i
+            i += 1
+        print(deepestNode)
+        # found deepest operator
+        childOne = currentNodes[deepestI - 1]
+        childTwo = currentNodes[deepestI + 1]
+        g.add_node(deepestNode)
+        g.add_node(childOne[0])
+        g.add_node(childTwo[0])
+        g.add_edge(deepestNode, childOne[0])
+        g.add_edge(deepestNode, childTwo[0])
+        visited.append(deepestNode)
+        currentNodes.remove(childOne)
+        currentNodes.remove(childTwo)
+        print()
 
 class TopBar(QWidget):
     def __init__(self, parent=None):
